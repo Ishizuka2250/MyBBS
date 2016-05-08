@@ -12,7 +12,8 @@ import java.util.Calendar;
 
 public class Controller {
 	static String s = File.pathSeparator;
-	static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
+	//static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
+	static String Sqlite = "jdbc:sqlite:C:/Users/Administrator/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
 	static StringWriter SQLStackTrace = new StringWriter();
 	static PrintWriter pw = new PrintWriter(SQLStackTrace);
 	static String debug;

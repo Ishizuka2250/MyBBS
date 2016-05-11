@@ -11,12 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Controller {
-	static String s = File.pathSeparator;
-	//static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
-	static String Sqlite = "jdbc:sqlite:C:/Users/Administrator/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
-	static StringWriter SQLStackTrace = new StringWriter();
-	static PrintWriter pw = new PrintWriter(SQLStackTrace);
-	static String debug;
+	private static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
+	//private static String Sqlite = "jdbc:sqlite:C:/Users/Administrator/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
+	private static StringWriter SQLStackTrace = new StringWriter();
+	private static PrintWriter pw = new PrintWriter(SQLStackTrace);
+	private static String debug;
 	private static int LastCommentNo;
 	private static ArrayList<Integer> IDList = new ArrayList<Integer>();
 	private static ArrayList<String> NameList = new ArrayList<String>();
@@ -41,6 +40,7 @@ public class Controller {
 			
 			statement.close();
 			connection.close();
+
 			return no;
 		}catch(SQLException e) {
 			e.printStackTrace(pw);
@@ -56,12 +56,14 @@ public class Controller {
 	public boolean commit(String name,String date,String comment) {
 		int id;
 		id = updateCommentNo();
+		if (name == "") name = "NoName";
+		
 		try{
 			Connection connection = DriverManager.getConnection(Sqlite);
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 
-			String sql = "insert into CommentData values(" + id + ",\'" + name + "\',\'" + date + "\',\'" + comment + "\');";
+			String sql = "insert into CommentData values(" + (id+1) + ",\'" + name + "\',\'" + date + "\',\'" + comment + "\');";
 			debug = sql;
 			
 			statement.execute(sql);

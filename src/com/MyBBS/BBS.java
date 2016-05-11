@@ -134,6 +134,9 @@ public class BBS extends HttpServlet {
 		int i;
 		int LastCommentLine;
 		LastCommentLine = controller.updateCommentNo();
+		
+		//response.getWriter().println(LastCommentLine);
+		
 		ArrayList<Integer> IDList = controller.getIDList();
 		ArrayList<String> NameList = controller.getNameList();
 		ArrayList<String> DateList = controller.getDateList();
@@ -144,11 +147,9 @@ public class BBS extends HttpServlet {
 			return;
 		}
         
-        if (LastCommentLine == 0) return;
-        
 		for (i=0;i<LastCommentLine;i++) {
             response.getWriter().println("<p>");
-            response.getWriter().println(i + ":" + NameList.get(i) + " " + DateList.get(i) + "<br />");
+            response.getWriter().println(IDList.get(i) + ":" + NameList.get(i) + " " + DateList.get(i) + "<br />");
             response.getWriter().println(CommentList.get(i) + "<br />");
             response.getWriter().println("</p>");
 		}

@@ -40,9 +40,10 @@ public class BBS extends HttpServlet {
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
-			response.getWriter().println("<title>Get</title>");
+			response.getWriter().println("<title>BBS</title>");
 			response.getWriter().println("</head>");
 			response.getWriter().println("<body>");
+			response.getWriter().println("<a href=\"/MyBBS/login\">Login</a><br>");
 			//response.getWriter().println("<div align=\"center\">");
 			printCommentLine(response);
 			//response.getWriter().println("update:" + controller.updateCommentNo());
@@ -64,7 +65,7 @@ public class BBS extends HttpServlet {
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
-			response.getWriter().println("<title>Get</title>");
+			response.getWriter().println("<title>Error</title>");
 			response.getWriter().println("</head>");
 			response.getWriter().println("<body>");
 			response.getWriter().println("<h1>500 Server Error</h1>");
@@ -92,9 +93,10 @@ public class BBS extends HttpServlet {
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
-			response.getWriter().println("<title>POST</title>");
+			response.getWriter().println("<title>BBS</title>");
 			response.getWriter().println("<head>");
 			response.getWriter().println("<body>");
+			response.getWriter().println("<a href=\"/MyBBS/LOGIN/\">Login</a><br>");
 			if (commit_result == false) response.getWriter().println(controller.getSQLStackTrace());
 			printCommentLine(response);
 			//response.getWriter().println("update:" + controller.updateCommentNo());
@@ -120,7 +122,7 @@ public class BBS extends HttpServlet {
         response.setContentType("text/html");
         response.getWriter().println("<html>");
         response.getWriter().println("<head>");
-        response.getWriter().println("<title>POST</title>");
+        response.getWriter().println("<title>BBS</title>");
         response.getWriter().println("<head>");
         response.getWriter().println("<body>");
         response.getWriter().println("<p>");

@@ -12,7 +12,7 @@ import java.util.Calendar;
 
 public class Controller {
 	private static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
-	//private static String Sqlite = "jdbc:sqlite:C:/Users/Administrator/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
+	//private static String Sqlite = "jdbc:sqlite:BBS.sqlite3";
 	private static StringWriter SQLStackTrace = new StringWriter();
 	private static PrintWriter pw = new PrintWriter(SQLStackTrace);
 	private static String debug;
@@ -108,6 +108,7 @@ public class Controller {
 		}
 		return true;
 	}
+	
 	
 	public ArrayList<Integer> getIDList() {
 		return IDList;

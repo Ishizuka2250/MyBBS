@@ -10,28 +10,32 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class BBS
+ * コメントの表示・投稿を行います。<br>
+ * Tomcat上で本クラスのURLはhttp://***.***.***.***:8080/MyBBS/ になります。
  */
-@WebServlet(name = "BBS", urlPatterns = { "/BBS" })
+
+@WebServlet(name = "BBS", urlPatterns = { "/" })
 public class BBS extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Controller controller;
 	
     /**
+     * コメントの表示・投稿可能な掲示板ページを生成します。
      * @see HttpServlet#HttpServlet()
+     * @throws ClassNotFoundException
      */
-    public BBS() {
+    public BBS() throws ClassNotFoundException {
         super();
         // TODO Auto-generated constructor stub
-        try {
-        	controller = new Controller();
-        }catch (ClassNotFoundException e) {
-        	
-        }
+        controller = new Controller();
     }
 
 	/**
+	 * GETリクエスト時
+	 * 投稿されたコメントの表示を行います。
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -79,7 +83,10 @@ public class BBS extends HttpServlet {
 	}
 
 	/**
+	 * 投稿内容をデータベース処理クラスへ送信し、投稿されたコメントの一覧を表示します。
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -118,6 +125,13 @@ public class BBS extends HttpServlet {
 		}
 	}
 	
+	/**
+	 * エラー発生時のスタックトレースを表示します。　
+	 * @param response HTTPレスポンス
+	 * @param sw 表示するスタックトレース
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	public void printErrorMsg(HttpServletResponse response,StringWriter sw)  throws ServletException, IOException {
         response.setContentType("text/html");
         response.getWriter().println("<html>");
@@ -132,26 +146,32 @@ public class BBS extends HttpServlet {
         response.getWriter().println("</html>");
 	}
 	
+	/**
+	 * データベースから投稿コメントの一覧を表示します
+	 * @param response HTTPレスポンス
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	public void printCommentLine(HttpServletResponse response) throws ServletException, IOException {
 		int i;
 		int LastCommentLine;
 		LastCommentLine = controller.updateCommentNo();
 		
 		//response.getWriter().println(LastCommentLine);
-		
-		ArrayList<Integer> IDList = controller.getIDList();
-		ArrayList<String> NameList = controller.getNameList();
-		ArrayList<String> DateList = controller.getDateList();
-		ArrayList<String> CommentList = controller.getCommentList();
-        
         if (controller.getCommentData() == false) {
 			printErrorMsg(response,controller.getSQLStackTrace());
 			return;
 		}
+		
+		ArrayList<Integer> NoList = controller.getNoList();
+		ArrayList<String> NameList = controller.getNameList();
+		ArrayList<String> DateList = controller.getDateList();
+		ArrayList<String> CommentList = controller.getCommentList();
+        
         
 		for (i=0;i<LastCommentLine;i++) {
             response.getWriter().println("<p>");
-            response.getWriter().println(IDList.get(i) + ":" + NameList.get(i) + " " + DateList.get(i) + "<br />");
+            response.getWriter().println(NoList.get(i) + ":" + NameList.get(i) + " " + DateList.get(i) + "<br />");
             response.getWriter().println(CommentList.get(i) + "<br />");
             response.getWriter().println("</p>");
 		}

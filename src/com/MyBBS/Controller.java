@@ -11,11 +11,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Controller {
-	private static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
-	//private static String Sqlite = "jdbc:sqlite:BBS.sqlite3";
+	//private static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
+	private static String SqlitePath = "C:/Sqlite/BBS.sqlite3";
 	private static StringWriter SQLStackTrace = new StringWriter();
 	private static PrintWriter pw = new PrintWriter(SQLStackTrace);
-	private static String debug;
 	private static int LastCommentNo;
 	private static ArrayList<Integer> IDList = new ArrayList<Integer>();
 	private static ArrayList<String> NameList = new ArrayList<String>();
@@ -24,13 +23,47 @@ public class Controller {
 	
 	public Controller() throws ClassNotFoundException {
 		Class.forName("org.sqlite.JDBC");
+		File existSqlite = new File(SqlitePath);
+		File existSqliteDir = new File("C:/Sqlite");
+		
+		if (existSqlite.exists() == false) {
+			if(existSqliteDir.exists() == false) existSqliteDir.mkdir();
+			try{
+				FileWriter fw = new FileWriter(SqlitePath,false);
+				fw.close();
+			}catch (IOException e){
+				e.printStackTrace(pw);
+				pw.flush();
+				return;
+			}
+			initSqlite();
+		}
+		
 		LastCommentNo = updateCommentNo();
+	}
+	
+	public void initSqlite() {
+		try {
+			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
+			Statement statement = connection.createStatement();
+			statement.setQueryTimeout(30);
+			
+			statement.executeQuery("create table CommentData(No int,Name text,Date text,Comment text)");
+			
+			statement.close();
+			connection.close();
+		}catch (SQLException e) {
+			e.printStackTrace(pw);
+			pw.flush();
+			return;
+		}
+		return;
 	}
 	
 	public int updateCommentNo() {
 		int no;
 		try{
-			Connection connection = DriverManager.getConnection(Sqlite);
+			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 			
@@ -59,12 +92,11 @@ public class Controller {
 		if (name == "") name = "NoName";
 		
 		try{
-			Connection connection = DriverManager.getConnection(Sqlite);
+			Connection connection = DriverManager.getConnection(SqlitePath);
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 
 			String sql = "insert into CommentData values(" + (id+1) + ",\'" + name + "\',\'" + date + "\',\'" + comment + "\');";
-			debug = sql;
 			
 			statement.execute(sql);
 			
@@ -86,14 +118,14 @@ public class Controller {
 		CommentList.clear();
 		
 		try {
-			Connection connection = DriverManager.getConnection(Sqlite);
+			Connection connection = DriverManager.getConnection(SqlitePath);
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 			
 			ResultSet result = statement.executeQuery("select * from CommentData");
 			
 			while(result.next()) {
-				IDList.add(result.getInt("ID"));
+				IDList.add(result.getInt("No"));
 				NameList.add(result.getString("Name"));
 				DateList.add(result.getString("Date"));
 				CommentList.add(result.getString("Comment"));
@@ -130,10 +162,6 @@ public class Controller {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat();
 		return sdf.format(cal.getTime());
-	}
-	
-	public String getDebug() {
-		return debug;
 	}
 	
 	public StringWriter getSQLStackTrace(){

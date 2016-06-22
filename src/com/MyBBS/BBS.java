@@ -3,6 +3,7 @@ package com.MyBBS;
 import java.io.*;
 import java.util.*;
 import com.MyBBS.Controller;
+import com.MyBBS.CommentData;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * コメントの表示・投稿を行います。<br>
- * Tomcat上で本クラスのURLはhttp://***.***.***.***:8080/MyBBS/ になります。
+ * Tomcat上で掲示板クラスのURLはhttp://***.***.***.***:8080/MyBBS/ になります。
  */
 
 @WebServlet(name = "BBS", urlPatterns = { "/" })
@@ -31,7 +32,7 @@ public class BBS extends HttpServlet {
     }
 
 	/**
-	 * GETリクエスト時
+	 * GETリクエスト時<br>
 	 * 投稿されたコメントの表示を行います。
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 * @throws ServletException
@@ -47,7 +48,7 @@ public class BBS extends HttpServlet {
 			response.getWriter().println("<title>BBS</title>");
 			response.getWriter().println("</head>");
 			response.getWriter().println("<body>");
-			response.getWriter().println("<a href=\"/MyBBS/login\">Login</a><br>");
+			//response.getWriter().println("<a href=\"/MyBBS/login\">Login</a><br>");
 			//response.getWriter().println("<div align=\"center\">");
 			printCommentLine(response);
 			//response.getWriter().println("update:" + controller.updateCommentNo());
@@ -83,6 +84,7 @@ public class BBS extends HttpServlet {
 	}
 
 	/**
+	 * POSTリクエスト時<br>
 	 * 投稿内容をデータベース処理クラスへ送信し、投稿されたコメントの一覧を表示します。
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 * @throws ServletException
@@ -90,12 +92,11 @@ public class BBS extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String nowdate = controller.getDate();
 		String comment = request.getParameter("comment");
 		String name = request.getParameter("name");
 		
 		try {
-			boolean commit_result = controller.commit(name, nowdate, comment);
+			boolean commit_result = controller.commit(name, comment);
 			//HTML
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
@@ -106,7 +107,6 @@ public class BBS extends HttpServlet {
 			response.getWriter().println("<a href=\"/MyBBS/LOGIN/\">Login</a><br>");
 			if (commit_result == false) response.getWriter().println(controller.getSQLStackTrace());
 			printCommentLine(response);
-			//response.getWriter().println("update:" + controller.updateCommentNo());
 			response.getWriter().println("<form action=\"/MyBBS/BBS\" method=\"post\">");
 			response.getWriter().println("Name: <input type=\"text\" name=\"name\"><br>");
 			response.getWriter().println("<textarea name=\"comment\" rows=\"6\" cols=\"40\"></textarea><br>");
@@ -157,22 +157,17 @@ public class BBS extends HttpServlet {
 		int LastCommentLine;
 		LastCommentLine = controller.updateCommentNo();
 		
-		//response.getWriter().println(LastCommentLine);
         if (controller.getCommentData() == false) {
 			printErrorMsg(response,controller.getSQLStackTrace());
 			return;
 		}
 		
-		ArrayList<Integer> NoList = controller.getNoList();
-		ArrayList<String> NameList = controller.getNameList();
-		ArrayList<String> DateList = controller.getDateList();
-		ArrayList<String> CommentList = controller.getCommentList();
-        
+        ArrayList<CommentData> CommentDataList = controller.getCommentDataList();
         
 		for (i=0;i<LastCommentLine;i++) {
             response.getWriter().println("<p>");
-            response.getWriter().println(NoList.get(i) + ":" + NameList.get(i) + " " + DateList.get(i) + "<br />");
-            response.getWriter().println(CommentList.get(i) + "<br />");
+            response.getWriter().println(CommentDataList.get(i).No + ":" + CommentDataList.get(i).Name + " " + CommentDataList.get(i).CommentDate + "<br />");
+            response.getWriter().println(CommentDataList.get(i).Comment+ "<br />");
             response.getWriter().println("</p>");
 		}
 		

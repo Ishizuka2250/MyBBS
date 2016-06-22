@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import com.MyBBS.CommentData;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -20,10 +21,7 @@ public class Controller {
 	private static String SqlitePath = "C:/Sqlite/BBS.sqlite3";
 	private static StringWriter SQLStackTrace = new StringWriter();
 	private static PrintWriter pw = new PrintWriter(SQLStackTrace);
-	private static ArrayList<Integer> NoList = new ArrayList<Integer>();
-	private static ArrayList<String> NameList = new ArrayList<String>();
-	private static ArrayList<String> CommentList = new ArrayList<String>();
-	private static ArrayList<String> DateList = new ArrayList<String>();
+	private static ArrayList<CommentData> CommentDataList = new ArrayList<CommentData>();
 	
 	/**
 	 * C:\Sqlite\ に掲示板データベースがない場合{@link #initSqlite()}を呼び出します。
@@ -101,21 +99,22 @@ public class Controller {
 	/**
 	 * 掲示板に投稿されたコメントをデータベースへ送信します。
 	 * @param name 投稿者名
-	 * @param date 投稿された日付
 	 * @param comment 投稿されたコメント
 	 * @return 送信成功判定
 	 */
-	public boolean commit(String name,String date,String comment) {
-		int id;
-		id = updateCommentNo();
+	public boolean commit(String name,String comment) {
+		int No = updateCommentNo();
+		
 		if (name == "") name = "NoName";
+		
+		CommentData commentdata = new CommentData(No+1,name,comment,this.getDate());
 		
 		try{
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 
-			String sql = "insert into CommentData values(" + (id+1) + ",\'" + name + "\',\'" + date + "\',\'" + comment + "\');";
+			String sql = "insert into CommentData values(" + commentdata.No + ",\'" + commentdata.Name + "\',\'" + commentdata.CommentDate + "\',\'" + commentdata.Comment + "\');";
 			
 			statement.execute(sql);
 			
@@ -135,10 +134,7 @@ public class Controller {
 	 * @return 取得成功判定
 	 */
 	public boolean getCommentData() {
-		NoList.clear();
-		NameList.clear();
-		DateList.clear();
-		CommentList.clear();
+		CommentDataList.clear();
 		
 		try {
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
@@ -148,10 +144,8 @@ public class Controller {
 			ResultSet result = statement.executeQuery("select * from CommentData");
 			
 			while(result.next()) {
-				NoList.add(result.getInt("No"));
-				NameList.add(result.getString("Name"));
-				DateList.add(result.getString("Date"));
-				CommentList.add(result.getString("Comment"));
+				CommentData commentdata = new CommentData(result.getInt("No"),result.getString("Name"),result.getString("Comment"),result.getString("Date"));
+				CommentDataList.add(commentdata);
 			}
 			
 			statement.close();
@@ -164,36 +158,8 @@ public class Controller {
 		return true;
 	}
 	
-	/**
-	 * コメントNoのリストを返します。
-	 * @return コメントNoのリスト
-	 */
-	public ArrayList<Integer> getNoList() {
-		return NoList;
-	}
-	
-	/**
-	 * 投稿者のリストを返します。
-	 * @return 投稿者リスト
-	 */
-	public ArrayList<String> getNameList() {
-		return NameList;
-	}
-	
-	/**
-	 * 投稿日時のリストを返します。
-	 * @return 投稿日時リスト
-	 */
-	public ArrayList<String> getDateList() {
-		return DateList;
-	}
-	
-	/**
-	 * コメントリストを返します。
-	 * @return コメントリスト
-	 */
-	public ArrayList<String> getCommentList() {
-		return CommentList;
+	public ArrayList<CommentData> getCommentDataList() {
+		return CommentDataList;
 	}
 	
 	/**

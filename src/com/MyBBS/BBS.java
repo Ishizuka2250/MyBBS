@@ -2,6 +2,7 @@ package com.MyBBS;
 
 import java.io.*;
 import java.util.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import com.MyBBS.Controller;
 import com.MyBBS.CommentData;
 import javax.servlet.ServletException;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 public class BBS extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Controller controller;
+	private static String token;
 	
     /**
      * コメントの表示・投稿可能な掲示板ページを生成します。
@@ -58,6 +60,7 @@ public class BBS extends HttpServlet {
 			response.getWriter().println("<input type=\"submit\" value=\"send\">");
 			response.getWriter().println("</form>");
 			//response.getWriter().println("</div>");
+			
 			response.getWriter().println("</body>");
 			response.getWriter().println("</html>");
 			
@@ -104,7 +107,7 @@ public class BBS extends HttpServlet {
 			response.getWriter().println("<title>BBS</title>");
 			response.getWriter().println("<head>");
 			response.getWriter().println("<body>");
-			response.getWriter().println("<a href=\"/MyBBS/LOGIN/\">Login</a><br>");
+			//response.getWriter().println("<a href=\"/MyBBS/LOGIN/\">Login</a><br>");
 			if (commit_result == false) response.getWriter().println(controller.getSQLStackTrace());
 			printCommentLine(response);
 			response.getWriter().println("<form action=\"/MyBBS/BBS\" method=\"post\">");

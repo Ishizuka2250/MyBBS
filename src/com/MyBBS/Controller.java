@@ -2,6 +2,7 @@ package com.MyBBS;
 
 import java.io.*;
 import java.util.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -22,6 +23,7 @@ public class Controller {
 	private static StringWriter SQLStackTrace = new StringWriter();
 	private static PrintWriter pw = new PrintWriter(SQLStackTrace);
 	private static ArrayList<CommentData> CommentDataList = new ArrayList<CommentData>();
+	private static String token;
 	
 	/**
 	 * C:\Sqlite\ に掲示板データベースがない場合{@link #initSqlite()}を呼び出します。

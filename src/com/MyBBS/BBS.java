@@ -2,7 +2,6 @@ package com.MyBBS;
 
 import java.io.*;
 import java.util.*;
-import org.apache.commons.lang3.RandomStringUtils;
 import com.MyBBS.Controller;
 import com.MyBBS.CommentData;
 import javax.servlet.ServletException;
@@ -20,7 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 public class BBS extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Controller controller;
-	private static String token;
+	private static boolean ServerError_flg;
+	private static boolean commitResult;
+	private static boolean getCommentResult;
 	
     /**
      * コメントの表示・投稿可能な掲示板ページを生成します。
@@ -31,6 +32,7 @@ public class BBS extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
         controller = new Controller();
+        ServerError_flg = false;
     }
 
 	/**
@@ -43,7 +45,13 @@ public class BBS extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		try {
-			//HTML
+			//サーバーエラー表示確認
+			if(ServerError_flg) {
+				serverError(response,controller.getSQLStackTrace());
+				return;
+			}
+			
+			//HTML	
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
@@ -60,7 +68,6 @@ public class BBS extends HttpServlet {
 			response.getWriter().println("<input type=\"submit\" value=\"send\">");
 			response.getWriter().println("</form>");
 			//response.getWriter().println("</div>");
-			
 			response.getWriter().println("</body>");
 			response.getWriter().println("</html>");
 			
@@ -70,20 +77,8 @@ public class BBS extends HttpServlet {
 			e.printStackTrace(pw);
 			pw.flush();
 			
-			response.setContentType("text/html");
-			response.getWriter().println("<html>");
-			response.getWriter().println("<head>");
-			response.getWriter().println("<title>Error</title>");
-			response.getWriter().println("</head>");
-			response.getWriter().println("<body>");
-			response.getWriter().println("<h1>500 Server Error</h1>");
-			response.getWriter().println("<p>");
-			response.getWriter().println(sw.toString());
-			response.getWriter().println("</p>");
-			response.getWriter().println("</body>");
-			response.getWriter().println("</html>");
+			serverError(response,sw);
 		}
-		
 	}
 
 	/**
@@ -95,36 +90,19 @@ public class BBS extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String comment = request.getParameter("comment");
-		String name = request.getParameter("name");
-		
+		String postComment = request.getParameter("comment");
+		String postName = request.getParameter("name");
+	
 		try {
-			boolean commit_result = controller.commit(name, comment);
-			//HTML
-			response.setContentType("text/html");
-			response.getWriter().println("<html>");
-			response.getWriter().println("<head>");
-			response.getWriter().println("<title>BBS</title>");
-			response.getWriter().println("<head>");
-			response.getWriter().println("<body>");
-			//response.getWriter().println("<a href=\"/MyBBS/LOGIN/\">Login</a><br>");
-			if (commit_result == false) response.getWriter().println(controller.getSQLStackTrace());
-			printCommentLine(response);
-			response.getWriter().println("<form action=\"/MyBBS/BBS\" method=\"post\">");
-			response.getWriter().println("Name: <input type=\"text\" name=\"name\"><br>");
-			response.getWriter().println("<textarea name=\"comment\" rows=\"6\" cols=\"40\"></textarea><br>");
-			response.getWriter().println("<input type=\"submit\" value=\"send\">");
-			response.getWriter().println("</form>");
-			response.getWriter().println("</body>");
-			response.getWriter().println("</html>");
-			
+			commitResult = controller.commit(postName, postComment);
+			if (commitResult == false) ServerError_flg = true; 
+			//response.getWriter().println(controller.getSQLStackTrace());
+			response.sendRedirect("/MyBBS/");
 		}catch(Exception e){
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
-			
-			printErrorMsg(response,sw);
 		}
 	}
 	
@@ -135,18 +113,21 @@ public class BBS extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void printErrorMsg(HttpServletResponse response,StringWriter sw)  throws ServletException, IOException {
+	public void serverError(HttpServletResponse response,StringWriter sw)  throws ServletException, IOException {
         response.setContentType("text/html");
         response.getWriter().println("<html>");
         response.getWriter().println("<head>");
-        response.getWriter().println("<title>BBS</title>");
+        response.getWriter().println("<title>500</title>");
         response.getWriter().println("<head>");
         response.getWriter().println("<body>");
+        response.getWriter().println("<h1>500 Server Error</h1>"); 
         response.getWriter().println("<p>");
         response.getWriter().println(sw.toString());
         response.getWriter().println("</p>");
         response.getWriter().println("</body>");
         response.getWriter().println("</html>");
+        
+        ServerError_flg = false;
 	}
 	
 	/**
@@ -160,9 +141,12 @@ public class BBS extends HttpServlet {
 		int LastCommentLine;
 		LastCommentLine = controller.updateCommentNo();
 		
-        if (controller.getCommentData() == false) {
-			printErrorMsg(response,controller.getSQLStackTrace());
-			return;
+		getCommentResult = controller.getCommentData();
+		
+        if (getCommentResult == false) {
+			//printErrorMsg(response,controller.getSQLStackTrace());
+			ServerError_flg = true;
+        	return;
 		}
 		
         ArrayList<CommentData> CommentDataList = controller.getCommentDataList();

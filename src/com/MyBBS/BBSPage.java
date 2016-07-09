@@ -2,7 +2,7 @@ package com.MyBBS;
 
 import java.io.*;
 import java.util.*;
-import com.MyBBS.Controller;
+import com.MyBBS.BBSController;
 import com.MyBBS.CommentData;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletResponse;
  * Tomcat上で掲示板クラスのURLはhttp://***.***.***.***:8080/MyBBS/ になります。
  */
 
-@WebServlet(name = "BBS", urlPatterns = { "/" })
-public class BBS extends HttpServlet {
+@WebServlet(name = "BBSPage", urlPatterns = { "/" })
+public class BBSPage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static Controller controller;
+	private static BBSController Controller;
 	private static boolean ServerError_flg;
 	private static boolean commitResult;
 	private static boolean getCommentResult;
@@ -28,10 +28,10 @@ public class BBS extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      * @throws ClassNotFoundException
      */
-    public BBS() throws ClassNotFoundException {
+    public BBSPage() throws ClassNotFoundException {
         super();
         // TODO Auto-generated constructor stub
-        controller = new Controller();
+        Controller = new BBSController();
         ServerError_flg = false;
     }
 
@@ -47,27 +47,26 @@ public class BBS extends HttpServlet {
 		try {
 			//サーバーエラー表示確認
 			if(ServerError_flg) {
-				serverError(response,controller.getSQLStackTrace());
+				serverError(response,Controller.getSQLStackTrace());
 				return;
 			}
 			
 			//HTML	
+            response.setCharacterEncoding("UTF-8");
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
+            response.getWriter().println("<meta charset=\"UTF-8\">");
 			response.getWriter().println("<title>BBS</title>");
 			response.getWriter().println("</head>");
 			response.getWriter().println("<body>");
-			//response.getWriter().println("<a href=\"/MyBBS/login\">Login</a><br>");
-			//response.getWriter().println("<div align=\"center\">");
+			response.getWriter().println("<p><a href=\"/MyBBS/login\">管理者ログイン</a></p>");
 			printCommentLine(response);
-			//response.getWriter().println("update:" + controller.updateCommentNo());
 			response.getWriter().println("<form action=\"/MyBBS/BBS\" method=\"post\">");
 			response.getWriter().println("Name: <input type=\"text\" name=\"name\"><br>");
 			response.getWriter().println("<textarea name=\"comment\" rows=\"6\" cols=\"40\"></textarea><br>");
 			response.getWriter().println("<input type=\"submit\" value=\"send\">");
 			response.getWriter().println("</form>");
-			//response.getWriter().println("</div>");
 			response.getWriter().println("</body>");
 			response.getWriter().println("</html>");
 			
@@ -92,9 +91,14 @@ public class BBS extends HttpServlet {
 		// TODO Auto-generated method stub
 		String postComment = request.getParameter("comment");
 		String postName = request.getParameter("name");
-	
+		
+		if ((postComment == null) || (postName == null)){
+			response.sendRedirect("/MyBBS/");
+			return;
+		}
+		
 		try {
-			commitResult = controller.commit(postName, postComment);
+			commitResult = Controller.commit(postName, postComment);
 			if (commitResult == false) ServerError_flg = true; 
 			//response.getWriter().println(controller.getSQLStackTrace());
 			response.sendRedirect("/MyBBS/");
@@ -114,9 +118,11 @@ public class BBS extends HttpServlet {
 	 * @throws IOException
 	 */
 	public void serverError(HttpServletResponse response,StringWriter sw)  throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html");
         response.getWriter().println("<html>");
         response.getWriter().println("<head>");
+		response.getWriter().println("<meta charset=\"UTF-8\">");
         response.getWriter().println("<title>500</title>");
         response.getWriter().println("<head>");
         response.getWriter().println("<body>");
@@ -139,9 +145,9 @@ public class BBS extends HttpServlet {
 	public void printCommentLine(HttpServletResponse response) throws ServletException, IOException {
 		int i;
 		int LastCommentLine;
-		LastCommentLine = controller.updateCommentNo();
+		LastCommentLine = Controller.updateCommentNo();
 		
-		getCommentResult = controller.getCommentData();
+		getCommentResult = Controller.getCommentData();
 		
         if (getCommentResult == false) {
 			//printErrorMsg(response,controller.getSQLStackTrace());
@@ -149,7 +155,7 @@ public class BBS extends HttpServlet {
         	return;
 		}
 		
-        ArrayList<CommentData> CommentDataList = controller.getCommentDataList();
+        ArrayList<CommentData> CommentDataList = Controller.getCommentDataList();
         
 		for (i=0;i<LastCommentLine;i++) {
             response.getWriter().println("<p>");

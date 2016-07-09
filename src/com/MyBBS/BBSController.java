@@ -16,7 +16,7 @@ import java.util.Calendar;
  * @author Ishizuka
  * 
  */
-public class Controller {
+public class BBSController {
 	//private static String Sqlite = "jdbc:sqlite:C:/Users/Ishizuka/Documents/GitHub/MyBBS/sqlite/BBS.sqlite3";
 	private static String SqlitePath = "C:/Sqlite/BBS.sqlite3";
 	private static StringWriter SQLStackTrace = new StringWriter();
@@ -27,10 +27,12 @@ public class Controller {
 	 * C:\Sqlite\ に掲示板データベースがない場合{@link #initSqlite()}を呼び出します。
 	 * @throws ClassNotFoundException
 	 */
-	public Controller() throws ClassNotFoundException {
+	public BBSController() throws ClassNotFoundException {
 		Class.forName("org.sqlite.JDBC");
 		File existSqlite = new File(SqlitePath);
 		File existSqliteDir = new File("C:/Sqlite");
+		
+		TableCheck();
 		
 		//C:\Sqlite\ に掲示板データベースがない場合自動作成します。
 		if (existSqlite.exists() == false) {
@@ -58,8 +60,9 @@ public class Controller {
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 			
-			statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
-
+            statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
+            statement.execute("create table LoginUser(UserName text,LoginID text,Password text);"); 
+			
 			statement.close();
 			connection.close();
 		}catch (SQLException e) {
@@ -69,6 +72,39 @@ public class Controller {
 		}
 		return true;
 	}
+	
+	/**
+	 * 以下のテーブルがDB上に存在するかチェックします。<br>
+	 * - CommentData (掲示板コメント管理テーブル)<br>
+	 * - LoginUser (ユーザーID/パスワード管理テーブル)
+	 */
+	private void TableCheck() {
+		boolean CommentDataTable_exist = false;
+		boolean LoginUserTable_exist = false;
+		
+		try {
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
+            
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(30);
+            
+            ResultSet result = statement.executeQuery("select * from sqlite_master");
+            while(result.next()){
+                if (result.getString(2).equals("CommentData")) CommentDataTable_exist = true;
+                if (result.getString(2).equals("LoginUser")) LoginUserTable_exist = true;
+            }
+            
+            if (! CommentDataTable_exist) statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
+            if (! LoginUserTable_exist) statement.execute("create table LoginUser(UserName text,LoginID text,Password text);"); 
+		
+            statement.close();
+            connection.close();
+		}catch (SQLException e){
+			e.printStackTrace(pw);
+			pw.flush();
+		}
+	}
+	
 	
 	/**
 	 * 掲示板に投稿されたコメント数を取得します。
@@ -106,7 +142,6 @@ public class Controller {
 		int No = updateCommentNo();
 		
 		if (comment == "") return true;
-		
 		if (name == "") name = "NoName";
 		
 		CommentData commentdata = new CommentData(No+1,name,comment,this.getDate());
@@ -181,6 +216,5 @@ public class Controller {
 	public StringWriter getSQLStackTrace(){
 		return SQLStackTrace;
 	}
-	
 	
 }

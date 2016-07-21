@@ -16,7 +16,7 @@ public class CreateUserPage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private LoginController controller;
 	private boolean createUserResult = false;
-	private String DBCheckResult = "";
+	private int DBCheckResult = 0;
 	private boolean ServerError = false;
 	private boolean UserNameEmpty = false;
 	private boolean LoginIDEmpty = false;
@@ -55,14 +55,14 @@ public class CreateUserPage extends HttpServlet {
                 
                 response.getWriter().println("ユーザー名:<input type=\"text\" name=\"username\">");
                 if (! UserNameEmpty) {
-                    if (DBCheckResult.equals("UserName is aleady used")) response.getWriter().println("<font color=\"red\"> ※既に登録されているユーザー名です。</font><br>");
+                    if (DBCheckResult == 1) response.getWriter().println("<font color=\"red\"> ※既に登録されているユーザー名です。</font><br>");
                     else response.getWriter().println("<br>");
                 }
                 else response.getWriter().println("<font color=\"red\"> ※ユーザー名入力欄が空欄です。</font><br>");
                 
                 response.getWriter().println("Login ID:<input type=\"text\" name=\"loginid\">");
                 if (! LoginIDEmpty) {
-                    if (DBCheckResult.equals("LoginID is already used")) response.getWriter().println("<font color=\"red\"> ※既に登録されているLoginIDです。</font><br>");
+                    if (DBCheckResult == 2) response.getWriter().println("<font color=\"red\"> ※既に登録されているLoginIDです。</font><br>");
                     else response.getWriter().println("<br>");
                 }
                 else response.getWriter().println("<font color=\"red\"> ※Login ID入力欄が空欄です。</font><br>");
@@ -97,7 +97,7 @@ public class CreateUserPage extends HttpServlet {
 		UserNameEmpty = false;
 		LoginIDEmpty = false;
 		PasswordEmpty = false;
-		DBCheckResult = "";
+		DBCheckResult = 0;
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class CreateUserPage extends HttpServlet {
 		
 		//DB重複登録確認
 		DBCheckResult = controller.DataCheck(UserName, LoginID);
-		if((DBCheckResult.equals("UserName is aleady used")) || (DBCheckResult.equals("LoginID is already used"))) {
+		if((DBCheckResult == 1) || (DBCheckResult == 2)) {
 			response.sendRedirect("/MyBBS/newuser");
 			return;
 		}

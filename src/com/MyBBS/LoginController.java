@@ -16,8 +16,8 @@ public class LoginController {
 		Class.forName("org.sqlite.JDBC");
 	}
 	
-	public String LoginCheck(String loginID,String password){
-		String CheckResult = "";
+	public int LoginCheck(String loginID,String password){
+		int CheckResult = 0;
 		try {
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
 			Statement statement = connection.createStatement();
@@ -27,10 +27,10 @@ public class LoginController {
 			ResultSet result = statement.executeQuery("select Password from LoginUser where LoginID = \"" + loginID + "\";");
 			
 			if (result.next()) {
-				if (result.getString(1).equals(password)) CheckResult = "Password OK";
-				else CheckResult = "Password NG";
+				if (result.getString(1).equals(password)) CheckResult = 0; //"Password OK";
+				else CheckResult = 1; //"Password NG";
 			}else{
-				CheckResult = "LoginID is NotFound";
+				CheckResult = 2; //"LoginID is NotFound";
 			}
 			
 			statement.close();
@@ -38,13 +38,13 @@ public class LoginController {
 		}catch (SQLException e){
 			e.printStackTrace(pw);
 			pw.flush();
-			return "SQLException";
+			return -1;//"SQLException";
 		}
 		
 		return CheckResult;
 	}
 	
-	public String DataCheck(String LoginName,String LoginID) {
+	public int DataCheck(String LoginName,String LoginID) {
 		boolean LoginNameExist = false;
 		boolean LoginIDExist = false;
 		
@@ -62,13 +62,13 @@ public class LoginController {
 		}catch (SQLException e){
 			e.printStackTrace(pw);
 			pw.flush();
-			return "SQLException";
+			return -1; //"SQLException"
 		}
 		
-		if(LoginNameExist) return "UserName is aleady used";
-		if(LoginIDExist) return "LoginID is already used";
+		if(LoginNameExist) return 1;// "UserName is already used"
+		if(LoginIDExist) return 2;//"LoginID is already used"
 		
-		return "OK";
+		return 0;//"OK"
 	}
 	
 	public boolean createUser(String UserName,String LoginID,String Password) {

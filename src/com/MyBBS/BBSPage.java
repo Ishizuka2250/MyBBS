@@ -54,18 +54,28 @@ public class BBSPage extends HttpServlet {
 			//HTML	
             response.setCharacterEncoding("UTF-8");
 			response.setContentType("text/html");
+			
+			response.getWriter().println("<!DOCTYPE html>");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
-            response.getWriter().println("<meta charset=\"UTF-8\">");
+			response.getWriter().println("<meta charset=\"UTF-8\">");
 			response.getWriter().println("<title>BBS</title>");
 			response.getWriter().println("</head>");
 			response.getWriter().println("<body>");
-			response.getWriter().println("<p><a href=\"/MyBBS/login\">管理者ログイン</a></p>");
+			response.getWriter().println("<a href=\"/MyBBS/login\">管理者ログイン</a>");
 			printCommentLine(response);
-			response.getWriter().println("<form action=\"/MyBBS/BBS\" method=\"post\">");
-			response.getWriter().println("Name: <input type=\"text\" name=\"name\"><br>");
-			response.getWriter().println("<textarea name=\"comment\" rows=\"6\" cols=\"40\"></textarea><br>");
-			response.getWriter().println("<input type=\"submit\" value=\"send\">");
+			response.getWriter().println("<form action=\"/MyBBS/BBS\" method=\"post\" accept-charset=\"UTF-8\">");
+			response.getWriter().println("<table border=\"0\">");
+			response.getWriter().println("<tr>");
+			response.getWriter().println("<td>Name: <input type=\"text\" name=\"name\"></td>");
+			response.getWriter().println("</tr>");
+			response.getWriter().println("<tr>");
+			response.getWriter().println("<td><textarea name=\"comment\" rows=\"7\" cols=\"40\"></textarea></td>");
+			response.getWriter().println("</tr>");
+			response.getWriter().println("<tr>");
+			response.getWriter().println("<td><input type=\"submit\" value=\"send\"></td>");
+			response.getWriter().println("</tr>");
+			response.getWriter().println("</table>");
 			response.getWriter().println("</form>");
 			response.getWriter().println("</body>");
 			response.getWriter().println("</html>");
@@ -91,6 +101,16 @@ public class BBSPage extends HttpServlet {
 		// TODO Auto-generated method stub
 		String postComment = request.getParameter("comment");
 		String postName = request.getParameter("name");
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+		
+		try{
+			postComment = new String(postComment.getBytes("ISO-8859-1"),"UTF-8");
+			postName = new String(postName.getBytes("ISO-8859-1"),"UTF-8");
+		}catch (UnsupportedEncodingException e){
+			e.printStackTrace(pw);
+			pw.flush();
+		}
 		
 		if ((postComment == null) || (postName == null)){
 			response.sendRedirect("/MyBBS/");
@@ -103,8 +123,6 @@ public class BBSPage extends HttpServlet {
 			//response.getWriter().println(controller.getSQLStackTrace());
 			response.sendRedirect("/MyBBS/");
 		}catch(Exception e){
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
 		}

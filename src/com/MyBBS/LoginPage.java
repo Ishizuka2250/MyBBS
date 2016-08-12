@@ -42,7 +42,7 @@ public class LoginPage extends HttpServlet {
 			response.getWriter().println("<title>login page</title>");
 			response.getWriter().println("</head>");
 			response.getWriter().println("<body>");
-			response.getWriter().println("<h1>login page</h1>");
+			response.getWriter().println("<h1>掲示板管理者ログイン</h1>");
 			
 			if((LoginResult == 1) || (LoginResult == 2)) response.getWriter().println("<p><font color=\"red\">※ログインIDもしくはパスワードが間違っています。</font></p>");
 			response.getWriter().println("<form action=\"/MyBBS/login\" method=\"post\">");

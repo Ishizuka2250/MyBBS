@@ -144,6 +144,7 @@ public class BBSController {
 		if (comment == "") return true;
 		if (name == "") name = "NoName";
 		
+		
 		CommentData commentdata = new CommentData(No+1,name,comment,this.getDate());
 		
 		try{

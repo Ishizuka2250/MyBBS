@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
 
 /**
  * コメントの表示・投稿を行います。<br>
@@ -44,15 +45,44 @@ public class BBSPage extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+        int i;
+        int LastCommentLine;
+        RequestDispatcher rd = null;
+        String Buffer = "";
 		try {
+            
 			//サーバーエラー表示確認
 			if(ServerError_flg) {
 				serverError(response,Controller.getSQLStackTrace());
 				return;
 			}
 			
+            LastCommentLine = Controller.updateCommentNo();
+            getCommentResult = Controller.getCommentData();
+            
+            if (getCommentResult == false) {
+                //printErrorMsg(response,controller.getSQLStackTrace());
+                ServerError_flg = true;
+                //return;
+            }
+            
+            ArrayList<CommentData> CommentDataList = Controller.getCommentDataList();
+            ArrayList<String> CommentDataListString = new ArrayList<String>();
+            
+            for (i=0;i<LastCommentLine;i++) {
+                Buffer = "<p>\n";
+                Buffer += CommentDataList.get(i).No + ":" + CommentDataList.get(i).Name + " " + CommentDataList.get(i).CommentDate + "<br />\n";
+                Buffer += CommentDataList.get(i).Comment+ "<br />\n";
+                Buffer += "</p>\n";
+                CommentDataListString.add(Buffer);
+            }
+            
+            request.setAttribute("Comment", CommentDataListString);
+            
+            rd = request.getRequestDispatcher("/BBSPage.jsp");
+            
 			//HTML	
-            response.setCharacterEncoding("UTF-8");
+            /*response.setCharacterEncoding("UTF-8");
 			response.setContentType("text/html");
 			
 			response.getWriter().println("<!DOCTYPE html>");
@@ -78,7 +108,7 @@ public class BBSPage extends HttpServlet {
 			response.getWriter().println("</table>");
 			response.getWriter().println("</form>");
 			response.getWriter().println("</body>");
-			response.getWriter().println("</html>");
+			response.getWriter().println("</html>");*/
 			
 		}catch(Exception e){
 			StringWriter sw = new StringWriter();
@@ -87,6 +117,8 @@ public class BBSPage extends HttpServlet {
 			pw.flush();
 			
 			serverError(response,sw);
+		}finally {
+			rd.forward(request, response);
 		}
 	}
 
@@ -101,16 +133,17 @@ public class BBSPage extends HttpServlet {
 		// TODO Auto-generated method stub
 		String postComment = request.getParameter("comment");
 		String postName = request.getParameter("name");
-        StringWriter sw = new StringWriter();
+		StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-		
-		try{
-			postComment = new String(postComment.getBytes("ISO-8859-1"),"UTF-8");
-			postName = new String(postName.getBytes("ISO-8859-1"),"UTF-8");
-		}catch (UnsupportedEncodingException e){
-			e.printStackTrace(pw);
-			pw.flush();
-		}
+		if(postName == "") postName = "NoName";
+        
+        try{
+        	postComment = new String(postComment.getBytes("ISO-8859-1"),"UTF-8");
+        	postName = new String(postName.getBytes("ISO-8859-1"),"UTF-8");
+        }catch (UnsupportedEncodingException e){
+        	e.printStackTrace(pw);
+        	pw.flush();
+        }
 		
 		if ((postComment == null) || (postName == null)){
 			response.sendRedirect("/MyBBS/");
@@ -160,28 +193,5 @@ public class BBSPage extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void printCommentLine(HttpServletResponse response) throws ServletException, IOException {
-		int i;
-		int LastCommentLine;
-		LastCommentLine = Controller.updateCommentNo();
-		
-		getCommentResult = Controller.getCommentData();
-		
-        if (getCommentResult == false) {
-			//printErrorMsg(response,controller.getSQLStackTrace());
-			ServerError_flg = true;
-        	return;
-		}
-		
-        ArrayList<CommentData> CommentDataList = Controller.getCommentDataList();
-        
-		for (i=0;i<LastCommentLine;i++) {
-            response.getWriter().println("<p>");
-            response.getWriter().println(CommentDataList.get(i).No + ":" + CommentDataList.get(i).Name + " " + CommentDataList.get(i).CommentDate + "<br />");
-            response.getWriter().println(CommentDataList.get(i).Comment+ "<br />");
-            response.getWriter().println("</p>");
-		}
-		
-	}
 
 }

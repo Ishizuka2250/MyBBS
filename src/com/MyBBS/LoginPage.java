@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.RequestDispatcher;
+import org.apache.commons.lang3.RandomStringUtils;
 import com.MyBBS.LoginController;
 
 /**
@@ -34,7 +36,27 @@ public class LoginPage extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		try {
-			response.setCharacterEncoding("UTF-8");
+		  HttpSession session = null;
+		  session = request.getSession(false);
+		  
+		  if (session == null) { 
+		    response.sendRedirect("/MyBBS/LoginPage.jsp");
+		    return;
+		  }
+		  
+		  if (session.getAttribute("LastLogin") == null) {
+		    response.sendRedirect("/MyBBS/LoginPage.jsp");
+		    return;
+		  }
+		  
+		  if (controller.LoginSessionCheck((String)session.getAttribute("LastLogin")) == false) {
+		    response.sendRedirect("/MyBBS/LoginPage.jsp");
+		    return;
+		  }
+		  
+		  response.sendRedirect("/MyBBS/admin");
+		  
+		  /*response.setCharacterEncoding("UTF-8");
 			response.setContentType("text/html");
 			response.getWriter().println("<html>");
 			response.getWriter().println("<head>");
@@ -52,7 +74,7 @@ public class LoginPage extends HttpServlet {
 			//response.getWriter().println("<span style=\"padding-left: 15px;\"><a href=\"/MyBBS/newuser\">新規ID登録</span></p>");
 			response.getWriter().println("</form>");
 			response.getWriter().println("</body>");
-			response.getWriter().println("</html>");
+			response.getWriter().println("</html>");*/
 		}catch (Exception e) {
 			
 		}
@@ -64,31 +86,32 @@ public class LoginPage extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		try {
-            String loginID = request.getParameter("loginid");
-            String password = request.getParameter("password");
-            
-            //パスワード処理
-            LoginResult = controller.LoginCheck(loginID, password);
-            
-            if (LoginResult == -1) {
-            	serverError(response,controller.getSQLStackTrace());
-            	return;
-            }
-            
-            if (LoginResult == 0) {
-                session = request.getSession(true);
-                session.setMaxInactiveInterval(30);
-                response.sendRedirect("/MyBBS/admin");
-            }else if((LoginResult == 1) || (LoginResult == 2)){
-                response.sendRedirect("/MyBBS/login");
-            }
+      String loginID = request.getParameter("loginid");
+      String password = request.getParameter("password");
+        
+        //パスワード処理
+      LoginResult = controller.LoginCheck(loginID, password);
+        
+      if (LoginResult == -1) {
+        serverError(request,response,controller.getSQLStackTrace());
+        return;
+      }
+        
+      if (LoginResult == 0) {
+        session = request.getSession(true);
+        session.setMaxInactiveInterval(3600);//sec (60分)
+        session.setAttribute("LastLogin",controller.getDate());
+        response.sendRedirect("/MyBBS/admin");
+      }else if((LoginResult == 1) || (LoginResult == 2)){
+        response.sendRedirect("/LoginPage.jsp");
+      }
 		}catch (Exception e) {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 			pw.flush();
 			
-			serverError(response,sw);
+			serverError(request,response,sw);
 		}
 	}
 
@@ -99,21 +122,13 @@ public class LoginPage extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void serverError(HttpServletResponse response,StringWriter sw)  throws ServletException, IOException {
-        response.setContentType("text/html");
-        response.getWriter().println("<html>");
-        response.getWriter().println("<head>");
-		response.getWriter().println("<meta charset=\"UTF-8\">");
-        response.getWriter().println("<title>500</title>");
-        response.getWriter().println("<head>");
-        response.getWriter().println("<body>");
-        response.getWriter().println("<h1>500 Server Error</h1>"); 
-        response.getWriter().println("<p>");
-        response.getWriter().println(sw.toString());
-        response.getWriter().println("</p>");
-        response.getWriter().println("</body>");
-        response.getWriter().println("</html>");
-	}
+    public void serverError(HttpServletRequest request,HttpServletResponse response, StringWriter sw)  throws ServletException, IOException {
+      RequestDispatcher rd = null;
+      log("stack"+ sw.toString());
+      request.setAttribute("stackTrace", sw);
+      rd = request.getRequestDispatcher("/ErrorPage.jsp");
+      rd.forward(request,response);
+    }
 
 }
 

@@ -17,10 +17,10 @@
 				out.println(Comment.get(i));
 			}
 		}else{
-			response.sendRedirect("/MyBBS/");
+			response.sendRedirect("/MyBBS/BBSPage");
 		}
 	%>
-    <form action="/MyBBS/BBS" method="post">
+    <form action="/MyBBS/BBSPage" method="post">
       <table border="0">
         <tr>
           <td>Name: <input type="text" name="name"></td>
@@ -34,6 +34,6 @@
       </table>
     </form>
     <br>
-    <a href="/MyBBS/login">管理者ログイン</a>
+    <a href="/MyBBS/login">管理者ページへ</a>
   </body>
 </html>

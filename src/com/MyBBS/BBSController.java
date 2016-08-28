@@ -60,11 +60,11 @@ public class BBSController {
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 			
-            statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
-            statement.execute("create table LoginUser(UserName text,LoginID text,Password text);"); 
+			statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
+			statement.execute("create table LoginUser(UserName text,LoginID text,Password text);"); 
 			
-			statement.close();
-			connection.close();
+      statement.close();
+      connection.close();
 		}catch (SQLException e) {
 			e.printStackTrace(pw);
 			pw.flush();
@@ -83,22 +83,22 @@ public class BBSController {
 		boolean LoginUserTable_exist = false;
 		
 		try {
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
-            
-            Statement statement = connection.createStatement();
-            statement.setQueryTimeout(30);
-            
-            ResultSet result = statement.executeQuery("select * from sqlite_master");
-            while(result.next()){
-                if (result.getString(2).equals("CommentData")) CommentDataTable_exist = true;
-                if (result.getString(2).equals("LoginUser")) LoginUserTable_exist = true;
-            }
-            
-            if (! CommentDataTable_exist) statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
-            if (! LoginUserTable_exist) statement.execute("create table LoginUser(UserName text,LoginID text,Password text);"); 
-		
-            statement.close();
-            connection.close();
+      Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
+    
+      Statement statement = connection.createStatement();
+      statement.setQueryTimeout(30);
+    
+      ResultSet result = statement.executeQuery("select * from sqlite_master");
+      while(result.next()){
+        if (result.getString(2).equals("CommentData")) CommentDataTable_exist = true;
+        if (result.getString(2).equals("LoginUser")) LoginUserTable_exist = true;
+      }
+    
+      if (! CommentDataTable_exist) statement.execute("create table CommentData(No int,Name text,Date text,Comment text);");
+      if (! LoginUserTable_exist) statement.execute("create table LoginUser(UserName text,LoginID text,Password text);"); 
+
+      statement.close();
+      connection.close();
 		}catch (SQLException e){
 			e.printStackTrace(pw);
 			pw.flush();
@@ -206,7 +206,7 @@ public class BBSController {
 	 */
 	public String getDate(){
 		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat();
+		SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd/ HH:mm:ss");
 		return sdf.format(cal.getTime());
 	}
 	

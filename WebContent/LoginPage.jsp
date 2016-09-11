@@ -12,11 +12,15 @@
       if(document.LoginForm.IDForm.value == "") {
         emptyFlg = true;
         document.getElementById("emptyWarnID").innerHTML = "<font color=\"red\">IDが入力されていません</font>";
+      }else{
+    	  document.getElementById("emptyWarnID").innerHTML = "<span></span>";
       }
 
       if(document.LoginForm.PasswordForm.value == "") {
         emptyFlg = true;
         document.getElementById("emptyWarnPassword").innerHTML = "<font color=\"red\">パスワードが入力されていません</font>";
+      }else{
+    	  document.getElementById("emptyWarnPassword").innerHTML = "<span></span>";
       }
 
       if(emptyFlg == false) document.LoginForm.submit();
@@ -28,12 +32,22 @@
       document.getElementById("emptyWarnID").innerHTML = "";
       document.getElementById("emptyWarnPassword").innerHTML = "";
     }
+    
+    function enter() {
+    	if(window.event.keyCode == 13) emptyCheck();
+    }
 -->
     </script>
   </head>
   <body>
     <h2>管理者ログイン</h2>
-		<%%>
+		<%
+		if(request.getAttribute("LoginResult") != null) {
+		  if((boolean)request.getAttribute("LoginResult") == false) {
+		    out.println("<a><font color=\"red\">ログインID もしくは パスワード が間違っています。</font></a>");
+		  }
+		}
+		%>
     <form action="/MyBBS/login" method="post" name="LoginForm">
       <table border="0">
         <tr>
@@ -43,7 +57,7 @@
         </tr>
         <tr>
           <td>Password:</td>
-          <td><input type="password" id="PasswordForm" name="password"></td>
+          <td><input type="password" id="PasswordForm" name="password" onkeydown="enter();"></td>
           <td><span id="emptyWarnPassword"><font color="red"></font></span></td>
         </tr>
         <tr>

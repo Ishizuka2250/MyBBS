@@ -100,7 +100,7 @@ public class LoginController {
 	  }
 	  long diffTime = diffSec(LastLogin,nowTime);
 	  
-	  System.out.println("sessionCheck:" + SessionTimeOut + " > " + diffTime);
+	  //System.out.println("sessionCheck:" + SessionTimeOut + " > " + diffTime);
 	  
 	  if(SessionTimeOut > diffTime) return true;
 	  else return false;

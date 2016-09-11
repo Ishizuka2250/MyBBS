@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.RequestDispatcher;
 import com.MyBBS.LoginController;
 
 /**
@@ -32,6 +33,7 @@ public class AdminPage extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 	  HttpSession session = request.getSession(false);
+	  RequestDispatcher rd;
 	  
 	  if(session == null) {
 	    response.sendRedirect("/MyBBS/login");
@@ -48,7 +50,9 @@ public class AdminPage extends HttpServlet {
 		  return;
 		}
 		
-		response.setCharacterEncoding("UTF-8");
+		rd = request.getRequestDispatcher("/AdminPage.jsp");
+		rd.forward(request, response);
+		/*response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html");
     response.getWriter().println("<html>");
     response.getWriter().println("<head>");
@@ -69,7 +73,7 @@ public class AdminPage extends HttpServlet {
       }
     }
     response.getWriter().println("</body>");
-    response.getWriter().println("</html>");
+    response.getWriter().println("</html>");*/
 	}
 
 	/**

@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.RequestDispatcher;
-import org.apache.commons.lang3.RandomStringUtils;
 import com.MyBBS.LoginController;
 
 /**
@@ -39,7 +38,7 @@ public class LoginPage extends HttpServlet {
 		  HttpSession session = null;
 		  session = request.getSession(false);
 		  
-		  if (session == null) { 
+		  if (session == null) {
 		    response.sendRedirect("/MyBBS/LoginPage.jsp");
 		    return;
 		  }
@@ -76,7 +75,11 @@ public class LoginPage extends HttpServlet {
 			response.getWriter().println("</body>");
 			response.getWriter().println("</html>");*/
 		}catch (Exception e) {
-			
+		  StringWriter sw = new StringWriter();
+		  PrintWriter pw = new PrintWriter(sw);
+		  e.printStackTrace(pw);
+		  pw.flush();
+		  serverError(request,response,sw);
 		}
 	}
 
@@ -88,10 +91,11 @@ public class LoginPage extends HttpServlet {
 		try {
       String loginID = request.getParameter("loginid");
       String password = request.getParameter("password");
-        
-        //パスワード処理
+      
+      //パスワード処理
       LoginResult = controller.LoginCheck(loginID, password);
-        
+      
+      //SQL系エラー
       if (LoginResult == -1) {
         serverError(request,response,controller.getSQLStackTrace());
         return;
@@ -101,16 +105,20 @@ public class LoginPage extends HttpServlet {
         session = request.getSession(true);
         session.setMaxInactiveInterval(3600);//sec (60分)
         session.setAttribute("LastLogin",controller.getDate());
+        session.setAttribute("LoginResult",true);
         response.sendRedirect("/MyBBS/admin");
       }else if((LoginResult == 1) || (LoginResult == 2)){
-        response.sendRedirect("/LoginPage.jsp");
+        request.setAttribute("LoginResult",false);
+        session.setAttribute("LoginResult",false);
+        RequestDispatcher rd = request.getRequestDispatcher("/LoginPage.jsp");
+        rd.forward(request, response);
+        return;
       }
 		}catch (Exception e) {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 			pw.flush();
-			
 			serverError(request,response,sw);
 		}
 	}

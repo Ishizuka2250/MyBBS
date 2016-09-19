@@ -36,54 +36,34 @@ public class AdminPage extends HttpServlet {
 	  RequestDispatcher rd;
 	  
 	  if(session == null) {
+	    log("/admin:session is null");
 	    response.sendRedirect("/MyBBS/login");
 	    return;
 	  }
 	  
 	  if(session.getAttribute("LastLogin") == null) {
+	    log("/admin:Not Login");
 	    response.sendRedirect("/MyBBS/login");
 	    return;
 	  }
     
 		if(controller.LoginSessionCheck((String)session.getAttribute("LastLogin")) == false) {
-		  response.sendRedirect("/MyBBS/login");
+		  log("/admin:Session timeout");
+		  request.setAttribute("LoginSessionTimeout", true);
+		  rd = request.getRequestDispatcher("/LoginPage.jsp");
+		  rd.forward(request, response);
 		  return;
 		}
 		
+		session.setAttribute("LastLogin",controller.getDate()); //セッションタイムの更新
 		rd = request.getRequestDispatcher("/AdminPage.jsp");
 		rd.forward(request, response);
-		/*response.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html");
-    response.getWriter().println("<html>");
-    response.getWriter().println("<head>");
-		response.getWriter().println("<meta charset=\"UTF-8\">");
-    response.getWriter().println("<title>Admin Page</title>");
-    response.getWriter().println("<head>");
-    response.getWriter().println("<body>");
-    response.getWriter().println("<h1>Session Check</h1>");
-    response.getWriter().println("<form action=\"/MyBBS/admin\" method=\"post\">");
-    response.getWriter().println("<input type=\"submit\" value=\"Logout\"><br>");
-    response.getWriter().println("</form>");
-    if (session != null) {
-      response.getWriter().println("<p>Session OK</p>");
-      response.getWriter().println(session.getAttribute("LoginSessionID"));
-      response.getWriter().println(session.getAttribute("LastLogin"));
-      if(session.getAttribute("hoge") == null) {
-        response.getWriter().println("<br>hoge はnullです。");
-      }
-    }
-    response.getWriter().println("</body>");
-    response.getWriter().println("</html>");*/
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		if (session != null) session.invalidate();
-		response.sendRedirect("/MyBBS/login");
-		// TODO Auto-generated method stub
-	}
 
+	}
 }

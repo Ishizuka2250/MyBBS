@@ -7,41 +7,51 @@
     <title>login page</title>
     <script type="text/javascript">
 <!--
-    function emptyCheck() {
-      var emptyFlg = false;
-      if(document.LoginForm.IDForm.value == "") {
-        emptyFlg = true;
-        document.getElementById("emptyWarnID").innerHTML = "<font color=\"red\">IDが入力されていません</font>";
-      }else{
-    	  document.getElementById("emptyWarnID").innerHTML = "<span></span>";
-      }
+function emptyCheck() {
+  var emptyFlg = false;
+  if(document.LoginForm.IDForm.value == "") {
+    emptyFlg = true;
+    document.getElementById("emptyWarnID").innerHTML = "<font color=\"red\">IDが入力されていません</font>";
+  }else{
+    document.getElementById("emptyWarnID").innerHTML = "<span></span>";
+  }
 
-      if(document.LoginForm.PasswordForm.value == "") {
-        emptyFlg = true;
-        document.getElementById("emptyWarnPassword").innerHTML = "<font color=\"red\">パスワードが入力されていません</font>";
-      }else{
-    	  document.getElementById("emptyWarnPassword").innerHTML = "<span></span>";
-      }
+  if(document.LoginForm.PasswordForm.value == "") {
+    emptyFlg = true;
+    document.getElementById("emptyWarnPassword").innerHTML = "<font color=\"red\">パスワードが入力されていません</font>";
+  }else{
+    document.getElementById("emptyWarnPassword").innerHTML = "<span></span>";
+  }
 
-      if(emptyFlg == false) document.LoginForm.submit();
-    }
+  if(emptyFlg == false) document.LoginForm.submit();
+}
 
-    function formReset() {
-      document.LoginForm.IDForm.value = "";
-      document.LoginForm.PasswordForm.value = "";
-      document.getElementById("emptyWarnID").innerHTML = "";
-      document.getElementById("emptyWarnPassword").innerHTML = "";
-    }
-    
-    function enter() {
-    	if(window.event.keyCode == 13) emptyCheck();
-    }
+function formReset() {
+  document.LoginForm.IDForm.value = "";
+  document.LoginForm.PasswordForm.value = "";
+  document.getElementById("emptyWarnID").innerHTML = "";
+  document.getElementById("emptyWarnPassword").innerHTML = "";
+}
+
+function enter() {
+  if(window.event.keyCode == 13) emptyCheck();
+}
 -->
     </script>
   </head>
   <body>
     <h2>管理者ログイン</h2>
 		<%
+		if(request.getAttribute("LoginSessionTimeout") != null) {
+		  try{
+        if((boolean)request.getAttribute("LoginSessionTimeout") == true) {
+          out.println("<a>セッションがタイムアウトしました。</a>");
+        }
+		  }catch (Exception e) {
+		    log("null pointer exception");
+		  }
+		}
+		
 		if(request.getAttribute("LoginResult") != null) {
 		  if((boolean)request.getAttribute("LoginResult") == false) {
 		    out.println("<a><font color=\"red\">ログインID もしくは パスワード が間違っています。</font></a>");

@@ -14,12 +14,13 @@
         if(LoginResult == false) response.sendRedirect("/MyBBS/login");
       } else {
         response.sendRedirect("/MyBBS/login");
-        log("AdminPage:direct access AdminPage.jsp");
+        log("AdminPage:direct access to AdminPage.jsp");
       }
     %>
-    <h2>Admin Pages</h2>
+    <h2>掲示板管理者ページ</h2>
     <p>password OK!</p>
-    <form action=\MyBBS/admin method="post">
+    <p><a href="/MyBBS/delete">コメント削除</a></p>
+    <form action="/MyBBS/Logout" method="post">
       <input type="submit" value="Logout"><br>
     </form>
   </body>

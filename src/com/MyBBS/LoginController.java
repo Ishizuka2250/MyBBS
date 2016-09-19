@@ -13,7 +13,7 @@ public class LoginController {
 	private static String SqlitePath = "C:/Sqlite/BBS.sqlite3";
 	private static StringWriter SQLStackTrace = new StringWriter();
 	private static PrintWriter pw = new PrintWriter(SQLStackTrace);
-	private long SessionTimeOut = 180;//sec (3•ª) 
+	private long SessionTimeOut = 1800;//sec (30•ª) 
 
 	LoginController() throws ClassNotFoundException{
 		Class.forName("org.sqlite.JDBC");

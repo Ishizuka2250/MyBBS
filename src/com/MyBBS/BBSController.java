@@ -107,10 +107,10 @@ public class BBSController {
 	
 	
 	/**
-	 * 掲示板に投稿されたコメント数を取得します。
+	 * 投稿されたコメントの総数を取得します。
 	 * @return 投稿されたコメント数
 	 */
-	public int updateCommentNo() {
+	public int getCommentCount() {
 		int no;
 		try{
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + SqlitePath);
@@ -139,11 +139,10 @@ public class BBSController {
 	 * @return 送信成功判定
 	 */
 	public boolean commit(String name,String comment) {
-		int No = updateCommentNo();
+		int No = getCommentCount();
 		
 		if (comment == "") return true;
 		if (name == "") name = "NoName";
-		
 		
 		CommentData commentdata = new CommentData(No+1,name,comment,this.getDate());
 		
@@ -217,5 +216,6 @@ public class BBSController {
 	public StringWriter getSQLStackTrace(){
 		return SQLStackTrace;
 	}
+	
 	
 }

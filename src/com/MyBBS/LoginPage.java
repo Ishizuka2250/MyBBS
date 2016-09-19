@@ -39,41 +39,28 @@ public class LoginPage extends HttpServlet {
 		  session = request.getSession(false);
 		  
 		  if (session == null) {
-		    response.sendRedirect("/MyBBS/LoginPage.jsp");
+        RequestDispatcher rd;
+		    rd = request.getRequestDispatcher("/LoginPage.jsp");
+		    rd.forward(request, response);
 		    return;
 		  }
 		  
 		  if (session.getAttribute("LastLogin") == null) {
-		    response.sendRedirect("/MyBBS/LoginPage.jsp");
+		    RequestDispatcher rd;
+		    rd = request.getRequestDispatcher("/LoginPage.jsp");
+		    rd.forward(request,response);
 		    return;
 		  }
 		  
 		  if (controller.LoginSessionCheck((String)session.getAttribute("LastLogin")) == false) {
-		    response.sendRedirect("/MyBBS/LoginPage.jsp");
+		    RequestDispatcher rd;
+		    rd = request.getRequestDispatcher("/LoginPage.jsp");
+		    rd.forward(request, response);
 		    return;
 		  }
 		  
 		  response.sendRedirect("/MyBBS/admin");
 		  
-		  /*response.setCharacterEncoding("UTF-8");
-			response.setContentType("text/html");
-			response.getWriter().println("<html>");
-			response.getWriter().println("<head>");
-			response.getWriter().println("<meta charset=\"UTF-8\">");
-			response.getWriter().println("<title>login page</title>");
-			response.getWriter().println("</head>");
-			response.getWriter().println("<body>");
-			response.getWriter().println("<h1>掲示板管理者ログイン</h1>");
-			
-			if((LoginResult == 1) || (LoginResult == 2)) response.getWriter().println("<p><font color=\"red\">※ログインIDもしくはパスワードが間違っています。</font></p>");
-			response.getWriter().println("<form action=\"/MyBBS/login\" method=\"post\">");
-			response.getWriter().println("login ID:<input type=\"text\" name=\"loginid\"><br>");
-			response.getWriter().println("Password:<input type=\"password\" name=\"password\"><br>");
-			response.getWriter().println("<p><input type=\"submit\" value=\"send\">");
-			//response.getWriter().println("<span style=\"padding-left: 15px;\"><a href=\"/MyBBS/newuser\">新規ID登録</span></p>");
-			response.getWriter().println("</form>");
-			response.getWriter().println("</body>");
-			response.getWriter().println("</html>");*/
 		}catch (Exception e) {
 		  StringWriter sw = new StringWriter();
 		  PrintWriter pw = new PrintWriter(sw);
@@ -103,10 +90,12 @@ public class LoginPage extends HttpServlet {
         
       if (LoginResult == 0) {
         session = request.getSession(true);
-        session.setMaxInactiveInterval(3600);//sec (60分)
-        session.setAttribute("LastLogin",controller.getDate());
+        session.setMaxInactiveInterval(3600);//sessiontime (sec)(設定：60分[3600/sec])
+        session.setAttribute("LastLogin",controller.getDate()); //セッションタイムの更新
         session.setAttribute("LoginResult",true);
+        log("LoginPage:user:" + loginID + " -- login ok.");
         response.sendRedirect("/MyBBS/admin");
+        return;
       }else if((LoginResult == 1) || (LoginResult == 2)){
         request.setAttribute("LoginResult",false);
         session.setAttribute("LoginResult",false);

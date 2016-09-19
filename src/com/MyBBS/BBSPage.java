@@ -44,11 +44,9 @@ public class BBSPage extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     // TODO Auto-generated method stub
     int i;
-    int LastCommentLine;
     RequestDispatcher rd = null;
     String Buffer = "";
     try {
-      LastCommentLine = Controller.updateCommentNo();
       getCommentResult = Controller.getCommentData();
       
       if (getCommentResult == false) {
@@ -59,7 +57,7 @@ public class BBSPage extends HttpServlet {
       ArrayList<CommentData> CommentDataList = Controller.getCommentDataList();
       ArrayList<String> CommentDataListString = new ArrayList<String>();
       
-      for (i=0;i<LastCommentLine;i++) {
+      for (i=0;i<CommentDataList.size();i++) {
         Buffer = "<p>\n";
         Buffer += CommentDataList.get(i).No + ":" + CommentDataList.get(i).Name + " " + CommentDataList.get(i).CommentDate + "<br />\n";
         Buffer += CommentDataList.get(i).Comment+ "<br />\n";
@@ -69,7 +67,7 @@ public class BBSPage extends HttpServlet {
       
       request.setAttribute("Comment", CommentDataListString);
       rd = request.getRequestDispatcher("/BBSPage.jsp");
-      
+      rd.forward(request, response);
     }catch(Exception e){
       StringWriter sw = new StringWriter();
       PrintWriter pw = new PrintWriter(sw);
@@ -78,8 +76,6 @@ public class BBSPage extends HttpServlet {
       
       serverError(request, response, sw);
       return;
-    }finally {
-      rd.forward(request, response);
     }
   }
 
